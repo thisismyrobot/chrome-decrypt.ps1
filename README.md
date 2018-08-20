@@ -21,7 +21,7 @@ opening a PR so I can include it here.
 
 This script wouldn't have happened these examples and documentation:
 
-https://github.com/p0z/CPD
-https://github.com/ValterBricca/SQLite.Net-PCL
-https://github.com/ericsink/SQLitePCL.raw
-https://github.com/byt3bl33d3r/chrome-decrypter
+ * https://github.com/p0z/CPD
+ * https://github.com/ValterBricca/SQLite.Net-PCL
+ * https://github.com/ericsink/SQLitePCL.raw
+ * https://github.com/byt3bl33d3r/chrome-decrypter
