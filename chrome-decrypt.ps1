@@ -9,7 +9,7 @@ Add-Type @"
 
     public class WinSQLite3
     {
-        const string dll = "C:\\Windows\\System32\\winsqlite3.dll";
+        const string dll = "winsqlite3";
 
         [DllImport(dll, EntryPoint="sqlite3_open")]
         public static extern IntPtr Open([MarshalAs(UnmanagedType.LPStr)] string filename, out IntPtr db);
