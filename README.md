@@ -14,7 +14,7 @@ I haven't tested Unicode passwords yet.
 
 ## Minified version
 
-This is hand-minified (1004 chars), if you can do better please consider
+This is hand-minified (1003 chars), if you can do better please consider
 opening a PR so I can include it here and give your PS minification skills
 some credit! :)
 
