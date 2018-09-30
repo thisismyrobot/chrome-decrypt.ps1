@@ -8,6 +8,13 @@ needing to include or download System.Data.SQLite.dll.
 
 Tested with Powershell 5 on Windows 10.
 
+## Tests
+
+Assuming an *up to date* version of [Pester](https://github.com/pester/Pester)
+is installed, run:
+
+    powershell Invoke-Pester -EnableExit
+
 ## TODO
 
 I haven't tested Unicode passwords yet.
