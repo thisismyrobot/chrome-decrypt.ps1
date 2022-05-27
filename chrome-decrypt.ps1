@@ -58,7 +58,20 @@ Add-Type @"
 $localStateData = Get-Content -Raw $localStatePath
 
 # This is insane, but ConvertFrom-Json doesn't work with this file in PS 5.1.
-$key = (($localStateData -Split 'encrypted_key":"')[1] -split '"')[0]
+$keyBase64 = (($localStateData -Split 'encrypted_key":"')[1] -split '"')[0]
+
+Write-Host $keyBase64
+
+$keyBytes = [System.Convert]::FromBase64String($keyBase64)
+$keyBytes = $keyBytes[5..($keyBytes.length-1)]  # Remove 'DPAPI' from start
+$keyDecoded = [System.Security.Cryptography.ProtectedData]::Unprotect(
+    $keyBytes,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::CurrentUser
+)
+
+Write-Host $keyDecoded
+
 
 Write-Host $key
 
