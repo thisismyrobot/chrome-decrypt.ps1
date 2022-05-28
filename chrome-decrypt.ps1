@@ -1,5 +1,7 @@
 # Assuming Win 10 with Chrome and PowerShell 5.1 installed, print out the
-# saved passwords created before Chrome v80 was installed.
+# saved passwords created before Chrome v80 was installed. If PowerShell 7.x
+# is also installed, this will print out the passwords created after Chrome
+# v80 has been installed, too.
 #
 # Launch recommendation:
 #
