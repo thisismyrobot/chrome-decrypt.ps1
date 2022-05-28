@@ -28,3 +28,7 @@ This script wouldn't have happened without the guidance from these examples:
  * https://github.com/byt3bl33d3r/chrome-decrypter
  * https://github.com/agentzex/chrome_v80_password_grabber
  * https://github.com/0xfd3/Chrome-Password-Recovery
+
+## I have to say it...
+
+This is for educational purposes only, please don't misuse this.
