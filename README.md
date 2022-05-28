@@ -20,7 +20,7 @@ some credit! :)
 
 ## Acknowledgements
 
-This script wouldn't have happened these examples and documentation:
+This script wouldn't have happened without the guidance from these examples:
 
  * https://github.com/p0z/CPD
  * https://github.com/ValterBricca/SQLite.Net-PCL
