@@ -6,12 +6,11 @@ Win10 now ships with SQLite support *built-in* (as winsqlite3.dll).
 This dramatically reduces the payload size for this script, as opposed to
 needing to include or download System.Data.SQLite.dll.
 
-Tested with PowerShell 5.1 Windows 10.
+Tested with PowerShell 5.1 Windows 10, and also supports PowerShell 7.x.
 
 ## TODO
 
- * Unicode passwords.
- * Chrome v80.
+ * Unicode passwords (may work, I haven't tested).
  * Chrome v80 minified.
 
 ## Minified version
