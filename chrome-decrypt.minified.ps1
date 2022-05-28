@@ -14,7 +14,7 @@ $x=[Security.Cryptography.AesGcm]::New($u::Unprotect([System.Convert]::FromBase6
 for(;!([W]::S($s)%100)){[W]::T($s,0)
 [W]::T($s,3)
 $c=[W]::B($s,5)
-try{(($u::Unprotect($c,$null,0)|%{[char]$_})-join'')}catch{if($x){$k=$c.length
+try{(($u::Unprotect($c,$n,0)|%{[char]$_})-join'')}catch{if($x){$k=$c.length
 $e=[byte[]]::new($k-31)
 $x.Decrypt($c[3..14],$c[15..($k-17)],$c[($k-16)..($k-1)],$e)
 ($e|%{[char]$_})-join''}}}

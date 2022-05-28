@@ -14,7 +14,7 @@ Tested with PowerShell 5.1 Windows 10, and also supports PowerShell 7.x.
 
 ## Minified version
 
-This is hand-minified (1271 chars), if you can do better please consider
+This is hand-minified (1268 chars), if you can do better please consider
 opening a PR so I can include it here and give your PS minification skills
 some credit! :)
 
