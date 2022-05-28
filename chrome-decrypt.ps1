@@ -115,13 +115,12 @@ while([WinSQLite3]::Step($stmt) -eq 100) {
     # Try any that failed above with the v80+ decoding, if we have PowerShell
     # 7.x.
     if ($decoder -ne $null) {
-
         $nonce = $encryptedPassword[3..14]
         $cipherText = $encryptedPassword[15..($encryptedPassword.length-17)]
         $tag = $encryptedPassword[($encryptedPassword.length-16)..($encryptedPassword.length-1)]
-        $unecryptedText = [byte[]]::new($cipherText.length)
-        $decoder.Decrypt($nonce, $cipherText, $tag, $unecryptedText)
-        $password = [System.Text.Encoding]::ASCII.GetString($unecryptedText)
+        $unencryptedBytes = [byte[]]::new($cipherText.length)
+        $decoder.Decrypt($nonce, $cipherText, $tag, $unencryptedBytes)
+        $password = [System.Text.Encoding]::ASCII.GetString($unencryptedBytes)
 
         Write-Host "$url,$username,$password"
     }
