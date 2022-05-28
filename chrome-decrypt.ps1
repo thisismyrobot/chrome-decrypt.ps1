@@ -3,7 +3,7 @@
 #
 # Launch recommendation:
 #
-#   pwsh .\chrome-decrypt.ps1
+#   pwsh .\chrome-decrypt.ps1 || powershell .\chrome-decrypt
 # 
 $dataPath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
 $query = "SELECT origin_url, username_value, password_value FROM logins WHERE blacklisted_by_user = 0"
