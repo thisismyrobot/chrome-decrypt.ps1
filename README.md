@@ -30,4 +30,5 @@ This script wouldn't have happened these examples and documentation:
  * https://github.com/ValterBricca/SQLite.Net-PCL
  * https://github.com/ericsink/SQLitePCL.raw
  * https://github.com/byt3bl33d3r/chrome-decrypter
- * https://github.com/agentzex/chrome_v80_password_grabber/blob/master/chrome_v80_password_grabber.py
+ * https://github.com/agentzex/chrome_v80_password_grabber
+ * https://github.com/0xfd3/Chrome-Password-Recovery
