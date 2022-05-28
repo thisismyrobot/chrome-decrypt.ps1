@@ -31,4 +31,4 @@ This script wouldn't have happened without the guidance from these examples:
 
 ## I have to say it...
 
-This is for educational purposes only, please don't misuse this.
+This is for educational purposes only, please don't misuse this script.
