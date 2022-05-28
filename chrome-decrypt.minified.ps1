@@ -16,6 +16,6 @@ for(;!([W]::S($s)%100)){[W]::T($s,0)
 $c=[W]::B($s,5)
 try{(($u::Unprotect($c,$null,0)|%{[char]$_})-join'')}catch{if($x){$k=$c.length
 $t=$c[15..($k-17)]
-$e=[byte[]]::new($t.length)
+$e=[byte[]]::new($k-31)
 $x.Decrypt($c[3..14],$t,$c[($k-16)..($k-1)],$e)
 ($e|%{[char]$_})-join''}}}
